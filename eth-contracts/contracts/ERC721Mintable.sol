@@ -62,7 +62,7 @@ contract Pausable is Ownable{
                 emit Paused(msg.sender);
             }
             else {
-                emit Unpause(msg.sender);
+                emit Unpaused(msg.sender);
             }
         }
 
@@ -172,14 +172,16 @@ contract ERC721 is Pausable, ERC165 {
 //    @dev Approves another address to transfer the given token ID
     function approve(address to, uint256 tokenId) public {
         
+        address _owner = ownerOf(tokenId);
         // require the given address to not be the owner of the tokenId
-        require(to != ownerOf(tokenId), "Cannot transfer to self!");
+        require(to != _owner, "Cannot transfer to self!");
         // require the msg sender to be the owner of the contract or isApprovedForAll() to be true
-        require((msg.sender == getOwner()) || (isApprovedForAll() == true), "Invalid operation");
+
+        require((msg.sender == _owner) || (isApprovedForAll(_owner, to) == true), "Invalid operation");
         // add 'to' address to token approvals
-        _operatorApprovals[ownerOf(tokenId)][_to] = true; 
+        _operatorApprovals[ownerOf(tokenId)][to] = true; 
         // emit Approval Event
-        emit Approval(ownerOf[tokenId], to, tokenId);
+        emit Approval(_owner, to, tokenId);
     }
 
     function getApproved(uint256 tokenId) public view returns (address) {
@@ -277,9 +279,9 @@ contract ERC721 is Pausable, ERC165 {
         _tokenApprovals[tokenId] = address(0);
 
         // update token counts & transfer ownership of the token ID 
-        _ownedTokensCount[from].decrease();
-        _ownedTokensCount[to].increase();
-        safeTransfer(from, to, tokenId);
+        _ownedTokensCount[from].decrement();
+        _ownedTokensCount[to].increment();
+        safeTransferFrom(from, to, tokenId);
 
         // emit correct event
         emit Transfer(from, to, tokenId);
@@ -488,9 +490,9 @@ contract ERC721Enumerable is ERC165, ERC721 {
 contract ERC721Metadata is ERC721Enumerable, usingOraclize {
     
     // Create private vars for token _name, _symbol, and _baseTokenURI (string)
-    string _name;
-    string _symbol;
-    string _baseTokenURI;
+    string private _name;
+    string private _symbol;
+    string private _baseTokenURI;
 
     // create private mapping of tokenId's to token uri's called '_tokenURIs'
     mapping (uint256 => string) private _tokenURIs;
@@ -512,15 +514,15 @@ contract ERC721Metadata is ERC721Enumerable, usingOraclize {
     }
 
     // create external getter functions for name, symbol, and baseTokenURI
-    function getName() external returns(string){
+    function getName() external returns(string memory){
         return _name;
     }
 
-    function getSymbol() external returns(string){
+    function getSymbol() external returns(string memory){
         return _symbol;
     }
 
-    function getBaseTokenURI() external returns(string){
+    function getBaseTokenURI() external returns(string memory){
         return _baseTokenURI;
     }
 
@@ -535,10 +537,10 @@ contract ERC721Metadata is ERC721Enumerable, usingOraclize {
     // TIP #2: you can also use uint2str() to convert a uint to a string
         // see https://github.com/oraclize/ethereum-api/blob/master/oraclizeAPI_0.5.sol for strConcat()
     // require the token exists before setting
-    function setTokenURI(uint256 tokenId) internal returns (string){
+    function setTokenURI(uint256 tokenId) internal returns (string memory){
         require(_exists(tokenId), "Token Id does not exist");
-        string _tokenURI;
-        _tokenURI = strConcat(_baseTokenURI, tokenId);
+        string memory _tokenURI;
+        _tokenURI = usingOraclize.strConcat(_baseTokenURI,  uint2str(tokenId));
         return _tokenURI;
     } 
 
@@ -566,14 +568,14 @@ contract DimiRC721Token is ERC721Metadata
                         (
                             address to,
                             uint256 tokenId,
-                            string tokenURI
+                            string memory tokenURI
                         ) 
                         public
                         onlyOwner
                         returns (bool)
     {
         super._mint(to, tokenId);
-        setTokenURI(tokenURI, tokenId);
+        setTokenURI(tokenId);
     }
 
 
