@@ -8,21 +8,21 @@ import "./Oraclize.sol";
 
 contract Ownable {
     //  1) create a private '_owner' variable of type address with a public getter function
-    //  2) create an internal constructor that sets the _owner var to the creater of the contract 
+    //  2) create an internal constructor that sets the _owner var to the creater of the contract
     //  3) create an 'onlyOwner' modifier that throws if called by any account other than the owner.
     //  4) fill out the transferOwnership function
     //  5) create an event that emits anytime ownerShip is transfered (including in the constructor)
 
     address private _owner;
 
-    event TransferedOwneship(address newOwner); 
+    event TransferedOwneship(address newOwner);
 
     modifier onlyOwner(){
         require(msg.sender == _owner, 'User is not authorized');
         _;
     }
 
-    function getOwner () public returns(address){
+    function getOwner () public view returns(address){
         return _owner;
     }
 
@@ -43,7 +43,7 @@ contract Ownable {
 contract Pausable is Ownable{
 //  Create a Pausable contract that inherits from the Ownable contract
 //  1) create a private '_paused' variable of type bool
-//  2) create a public setter using the inherited onlyOwner modifier 
+//  2) create a public setter using the inherited onlyOwner modifier
 //  3) create an internal constructor that sets the _paused variable to false
 //  4) create 'whenNotPaused' & 'paused' modifier that throws in the appropriate situation
 //  5) create a Paused & Unpaused event that emits the address that triggered the event
@@ -74,7 +74,7 @@ contract Pausable is Ownable{
             require(_paused == false, "Contract is paused");
             _;
         }
-        
+
         modifier paused(){
             require(_paused == true, "Contract is not paused");
             _;
@@ -115,7 +115,7 @@ contract ERC165 {
      * @dev internal method for registering an interface
      */
     function _registerInterface(bytes4 interfaceId) internal {
-        require(interfaceId != 0xffffffff);
+        require(interfaceId != 0xffffffff, "Wrong interface id");
         _supportedInterfaces[interfaceId] = true;
     }
 }
@@ -127,7 +127,7 @@ contract ERC721 is Pausable, ERC165 {
     event Approval(address indexed owner, address indexed approved, uint256 indexed tokenId);
 
     event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
-    
+
     using SafeMath for uint256;
     using Address for address;
     using Counters for Counters.Counter;
@@ -171,7 +171,8 @@ contract ERC721 is Pausable, ERC165 {
 
 //    @dev Approves another address to transfer the given token ID
     function approve(address to, uint256 tokenId) public {
-        
+
+
         address _owner = ownerOf(tokenId);
         // require the given address to not be the owner of the tokenId
         require(to != _owner, "Cannot transfer to self!");
@@ -179,7 +180,7 @@ contract ERC721 is Pausable, ERC165 {
 
         require((msg.sender == _owner) || (isApprovedForAll(_owner, to) == true), "Invalid operation");
         // add 'to' address to token approvals
-        _operatorApprovals[ownerOf(tokenId)][to] = true; 
+        _operatorApprovals[ownerOf(tokenId)][to] = true;
         // emit Approval Event
         emit Approval(_owner, to, tokenId);
     }
@@ -196,7 +197,7 @@ contract ERC721 is Pausable, ERC165 {
      * @param approved representing the status of the approval to be set
      */
     function setApprovalForAll(address to, bool approved) public {
-        require(to != msg.sender);
+        require(to != msg.sender, "Cannot send to yourself");
         _operatorApprovals[msg.sender][to] = approved;
         emit ApprovalForAll(msg.sender, to, approved);
     }
@@ -212,8 +213,7 @@ contract ERC721 is Pausable, ERC165 {
     }
 
     function transferFrom(address from, address to, uint256 tokenId) public {
-        require(_isApprovedOrOwner(msg.sender, tokenId));
-
+        require(_isApprovedOrOwner(msg.sender, tokenId), "transferFrom: Not approved or owner");
         _transferFrom(from, to, tokenId);
     }
 
@@ -223,7 +223,7 @@ contract ERC721 is Pausable, ERC165 {
 
     function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory _data) public {
         transferFrom(from, to, tokenId);
-        require(_checkOnERC721Received(from, to, tokenId, _data));
+        require(_checkOnERC721Received(from, to, tokenId, _data), "Token not received");
     }
 
     /**
@@ -253,16 +253,16 @@ contract ERC721 is Pausable, ERC165 {
     function _mint(address to, uint256 tokenId) internal {
 
         // revert if given tokenId already exists or given address is invalid
-        require(_exists(tokenId), "Token already exists");
-        require(to != address(0), "Invalid minting address");
+        require(!_exists(tokenId), "Mint: Token already exists");
+        require(to != address(0), "Mint: Invalid minting address");
 
         // mint tokenId to given address & increase token count of owner
-        address owner = ownerOf(tokenId);
-        _ownedTokensCount[owner].increment();
+        _tokenOwner[tokenId] = to;
+        _ownedTokensCount[to].increment();
 
 
         // emit Transfer event
-        emit Transfer(owner, to, tokenId);
+        emit Transfer(address(0), to, tokenId);
     }
 
     // @dev Internal function to transfer ownership of a given token ID to another address.
@@ -270,19 +270,18 @@ contract ERC721 is Pausable, ERC165 {
     function _transferFrom(address from, address to, uint256 tokenId) internal {
 
         //  require from address is the owner of the given token
-        require(ownerOf(tokenId) == from, "Not token owner");
+        require(ownerOf(tokenId) == from, "_transferFrom: Not token owner");
 
         // require token is being transfered to valid address
-        require(to != address(0), "Invalid transfer address");
+        require(to != address(0), "_transferFrom: Invalid transfer address");
 
         // clear approval
         _tokenApprovals[tokenId] = address(0);
 
-        // update token counts & transfer ownership of the token ID 
+        // update token counts & transfer ownership of the token ID
         _ownedTokensCount[from].decrement();
         _ownedTokensCount[to].increment();
-        safeTransferFrom(from, to, tokenId);
-
+        _tokenOwner[tokenId] = to;
         // emit correct event
         emit Transfer(from, to, tokenId);
     }
@@ -351,7 +350,7 @@ contract ERC721Enumerable is ERC165, ERC721 {
      * @return uint256 token ID at the given index of the tokens list owned by the requested address
      */
     function tokenOfOwnerByIndex(address owner, uint256 index) public view returns (uint256) {
-        require(index < balanceOf(owner));
+        require(index < balanceOf(owner), "");
         return _ownedTokens[owner][index];
     }
 
@@ -370,7 +369,7 @@ contract ERC721Enumerable is ERC165, ERC721 {
      * @return uint256 token ID at the given index of the tokens list
      */
     function tokenByIndex(uint256 index) public view returns (uint256) {
-        require(index < totalSupply());
+        require(index < totalSupply(),"");
         return _allTokens[index];
     }
 
@@ -383,9 +382,7 @@ contract ERC721Enumerable is ERC165, ERC721 {
      */
     function _transferFrom(address from, address to, uint256 tokenId) internal {
         super._transferFrom(from, to, tokenId);
-
         _removeTokenFromOwnerEnumeration(from, tokenId);
-
         _addTokenToOwnerEnumeration(to, tokenId);
     }
 
@@ -397,9 +394,7 @@ contract ERC721Enumerable is ERC165, ERC721 {
      */
     function _mint(address to, uint256 tokenId) internal {
         super._mint(to, tokenId);
-
         _addTokenToOwnerEnumeration(to, tokenId);
-
         _addTokenToAllTokensEnumeration(tokenId);
     }
 
@@ -488,7 +483,7 @@ contract ERC721Enumerable is ERC165, ERC721 {
 }
 
 contract ERC721Metadata is ERC721Enumerable, usingOraclize {
-    
+
     // Create private vars for token _name, _symbol, and _baseTokenURI (string)
     string private _name;
     string private _symbol;
@@ -514,20 +509,20 @@ contract ERC721Metadata is ERC721Enumerable, usingOraclize {
     }
 
     // create external getter functions for name, symbol, and baseTokenURI
-    function getName() external returns(string memory){
+    function getName() external view returns(string memory){
         return _name;
     }
 
-    function getSymbol() external returns(string memory){
+    function getSymbol() external view returns(string memory){
         return _symbol;
     }
 
-    function getBaseTokenURI() external returns(string memory){
+    function getBaseTokenURI() external view returns(string memory){
         return _baseTokenURI;
     }
 
     function tokenURI(uint256 tokenId) external view returns (string memory) {
-        require(_exists(tokenId));
+        require(_exists(tokenId),"tokenURI: tokenId does not exist");
         return _tokenURIs[tokenId];
     }
 
@@ -537,14 +532,16 @@ contract ERC721Metadata is ERC721Enumerable, usingOraclize {
     // TIP #2: you can also use uint2str() to convert a uint to a string
         // see https://github.com/oraclize/ethereum-api/blob/master/oraclizeAPI_0.5.sol for strConcat()
     // require the token exists before setting
-    function setTokenURI(uint256 tokenId) internal returns (string memory){
-        require(_exists(tokenId), "Token Id does not exist");
-        string memory _tokenURI;
-        _tokenURI = usingOraclize.strConcat(_baseTokenURI,  uint2str(tokenId));
-        return _tokenURI;
-    } 
+    function _setTokenURI
+                            (
+                                uint256 tokenId
+                            )
+                            internal
+    {
+        require(_exists(tokenId), "setTokenURI: Token Id does not exist");
+        _tokenURIs[tokenId] = usingOraclize.strConcat(_baseTokenURI,  uint2str(tokenId));
 
-
+    }
 }
 
 //  Create CustomERC721Token contract that inherits from the ERC721Metadata contract. You can name this contract as you please
@@ -556,7 +553,7 @@ contract ERC721Metadata is ERC721Enumerable, usingOraclize {
 //      -returns a true boolean upon completion of the function
 //      -calls the superclass mint and setTokenURI functions
 
-contract DimiRC721Token is ERC721Metadata
+contract DimiERC721Token is ERC721Metadata
                 (
                     "Dimitoken",
                     "DMI",
@@ -564,19 +561,17 @@ contract DimiRC721Token is ERC721Metadata
                 )
 {
 
-    function mint 
+    function mint
                         (
                             address to,
-                            uint256 tokenId,
-                            string memory tokenURI
-                        ) 
+                            uint256 tokenId
+                        )
                         public
                         onlyOwner
                         returns (bool)
     {
         super._mint(to, tokenId);
-        setTokenURI(tokenId);
+        _setTokenURI(tokenId);
+        return true;
     }
-
-
 }
