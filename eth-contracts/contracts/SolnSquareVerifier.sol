@@ -1,4 +1,4 @@
-pragma solidity ^0.5.2;
+pragma solidity ^0.5.0;
 
 // define a contract call to the zokrates generated solidity contract <Verifier> or <renamedVerifier>
 

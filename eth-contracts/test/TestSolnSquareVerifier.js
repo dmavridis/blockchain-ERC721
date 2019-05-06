@@ -44,4 +44,3 @@ contract('TestSolnSquareVerifier', accounts => {
 
     })
 })
-

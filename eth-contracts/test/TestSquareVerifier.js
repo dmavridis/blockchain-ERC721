@@ -4,9 +4,6 @@ var Verifier = artifacts.require('Verifier');
 // - use the contents from proof.json generated from zokrates steps
 contract('TestSquareVerifier', accounts => {
 
-
-
-
     describe('Verify Tx', function () {
         beforeEach(async function () { 
             this.contract = await Verifier.new({from: accounts[0] });
