@@ -20,7 +20,7 @@ contract('TestSolnSquareVerifier', accounts => {
         })
 
         it('Minting', async function () { 
-            let minted = await this.contract.mintNFT
+            await this.contract.mintNFT
                                 (
                                     account_two,
                                     202,
@@ -34,8 +34,10 @@ contract('TestSolnSquareVerifier', accounts => {
                                     proof.K,
                                     input
                                );
-            assert(minted, "Token not minted");
+            let balance = await this.contract.balanceOf(account_two)
+            assert.equal(balance, 1, 'Incorrect Balance')
         })
 
     })
 })
+

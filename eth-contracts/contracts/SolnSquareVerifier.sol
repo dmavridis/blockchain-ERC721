@@ -1,13 +1,13 @@
-pragma solidity >=0.4.21 <0.6.0;
+pragma solidity ^0.5.2;
 
 // define a contract call to the zokrates generated solidity contract <Verifier> or <renamedVerifier>
 
 import './ERC721Mintable.sol';
-import './Verifier.sol';
+// import './Verifier.sol';
 // define another contract named SolnSquareVerifier that inherits from your ERC721Mintable class
-contract SolnSquareVerifier is DimiERC721Token, Verifier {
+contract SolnSquareVerifier is HomeERC721Token {
 
- //   Verifier verifier;
+    Verifier verifier;
 
     // define a solutions struct that can hold an index & an address
     struct Solution{
@@ -23,6 +23,19 @@ contract SolnSquareVerifier is DimiERC721Token, Verifier {
 
     // Create an event to emit when a solution is added
     event SolutionAdded(address addr);
+
+
+    constructor
+                    (
+                    address verifierAddress
+                    )
+                    public
+    {
+        verifier = Verifier(verifierAddress);
+    }
+
+
+
 
      // Create a function to add the solutions to the array and emit the event
     function addSolution
@@ -57,14 +70,14 @@ contract SolnSquareVerifier is DimiERC721Token, Verifier {
                             uint[2] memory input
                         )
                         public
-                        returns(bool)
+ //                       returns(bool)
     {
         bytes32 solutionId = getSolutionId(a, a_p, b, b_p, c, c_p, h, k, input);
-  //      require(_uniqueSolutions[solutionId].addrSolution == address(0), "mintNFT: Solution already exists!");
-  //      require(verifyTx(a, a_p, b, b_p, c, c_p, h, k, input), "mintNFT: Solution not verified");
+        require(_uniqueSolutions[solutionId].addrSolution == address(0), "mintNFT: Solution already exists!");
+        require(verifier.verifyTx(a, a_p, b, b_p, c, c_p, h, k, input), "mintNFT: Solution not verified");
 
         addSolution(solutionId, tokenId, to);
-        return true;//mint(to, tokenId);
+        mint(to, tokenId);
     }
 
 
@@ -86,4 +99,22 @@ contract SolnSquareVerifier is DimiERC721Token, Verifier {
     {
         return keccak256(abi.encodePacked(a, a_p, b, b_p, c, c_p, h, k, input));
     }
+}
+
+
+contract Verifier {
+
+    function verifyTx
+                        (
+                            uint[2] memory a,
+                            uint[2] memory a_p,
+                            uint[2][2] memory b,
+                            uint[2] memory b_p,
+                            uint[2] memory c,
+                            uint[2] memory c_p,
+                            uint[2] memory h,
+                            uint[2] memory k,
+                            uint[2] memory input
+                        )
+                        public returns (bool r);
 }

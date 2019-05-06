@@ -553,10 +553,10 @@ contract ERC721Metadata is ERC721Enumerable, usingOraclize {
 //      -returns a true boolean upon completion of the function
 //      -calls the superclass mint and setTokenURI functions
 
-contract DimiERC721Token is ERC721Metadata
+contract HomeERC721Token is ERC721Metadata
                 (
-                    "Dimitoken",
-                    "DMI",
+                    "HomeToken",
+                    "HOM",
                     "https://s3-us-west-2.amazonaws.com/udacity-blockchain/capstone/"
                 )
 {
