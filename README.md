@@ -1,6 +1,61 @@
-# Udacity Blockchain Capstone
+### General structure
 
-The capstone will build upon the knowledge you have gained in the course in order to build a decentralized housing product. 
+Three major contracts are involved in the implementation of the Dapp, namely `ERC721Mintable.sol`, `Verifier.sol`, `SonlSquareVerifier.sol`. Other supportive contacts are also involved, mainly from the `OpenZeppellin` package. 
+
+The top level contract is the `SonlSquareVerifier.sol` which extends the 
+
+
+
+### Tips
+
+To run the test ganache is invoked using the following commands (mnemonic words are not required)
+
+```
+ganache-cli -p 8545 -m 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat' -a 20
+```
+
+### Running Zokrates
+
+Zokrates is invoked in docked with the following command. Replace the `<absolute path>`with your path to the project. 
+
+```
+docker run -v <absolute path>\Blockchain-Capstone\zokrates\code:/home/zokrates/cod
+e  -ti zokrates/zokrates /bin/bash
+```
+
+Compile the program written in ZoKrates DSL
+
+```
+../../zokrates compile -i square.code
+```
+
+```
+ ../../zokrates setup --proving-scheme pghr13
+```
+
+```
+~/zokrates compute-witness -a 3 9 
+```
+
+```
+~/zokrates generate-proof --proving-scheme pghr13
+```
+
+```
+~/zokrates export-verifier --proving-scheme pghr13
+```
+
+
+
+### Testing
+
+There are three files used for testing.  Running
+
+```
+truffle test
+```
+
+produces the following output:
 
 ```
  Contract: TestERC721Mintable
@@ -25,9 +80,15 @@ The capstone will build upon the knowledge you have gained in the course in orde
   8 passing (8s)
 ```
 
+### Deployment to Rinkeby
 
+In order to deploy to Rinkeby test network, the `truffle-config.js` file has been appropriately modified. Then executing the command:
 
+```
+truffle migrate --reset --network
+```
 
+logs the output: 
 
 ```
 Compiling your contracts...
@@ -125,50 +186,91 @@ Summary
 
 
 
+## Project Review prerequisites
+
+### Project Deliverables
+
+
+
+| CRITERIA | MEETS SPECIFICATIONS                                         |
+| :------- | :----------------------------------------------------------- |
+| Write Up | Student includes a README to explain how to test their code. |
+| Write Up | Student provides Contract Addresses, Contract Abi's, OpenSea MarketPlace Storefront link's. |
+
+This file provides the information on how to test the code
+
+The required links are summarized as:
+
+- **Contract address:**
+- ABI: Abi is part of the file and is copied for conveniece in the abi.json file
+- **OpenSea Marketplace:** 
+
+
+
+### ERC721
+
+| CRITERIA                                     | MEETS SPECIFICATIONS                                         |
+| :------------------------------------------- | :----------------------------------------------------------- |
+| ERC721 Mintable Contract                     | Student completes the boilerplate ERC721 Mintable Contract in `ERC721Mintable.sol` |
+| ERC721 Mintable Contract Test Cases          | Student writes and passes the test cases in `TestERC721Mintable.js` |
+| ERC721 Mintable Contract Zokrates Test       | Student writes and passes the test cases in `TestSquareVerifier.js` |
+| ERC721 Mintable Contract Zokrates Test Cases | Student writes and passes the test cases in `TestSolnSquareVerifier.js` |
+
+- `ERC721Mintable.sol` is complete
+- `TestERC721Mintable.js` test cases are written and passed as shown earlier
+- `TestSquareVerifier.js` test cases are written and passed
+- `TestSolnSquareVerifier.js` test cases are written and passed
+
+### Zokrates
+
+| CRITERIA                           | MEETS SPECIFICATIONS                                         |
+| :--------------------------------- | :----------------------------------------------------------- |
+| Zokrates program written using DSL | Student completes the Zokrates proof in square.code by adding the variable names in `square.code` |
+| Zokrates Test Cases                | Student completes test contract in `SolnSquareVerifier.sol`  |
+| Zokrates Test Cases                | Student writes and passes the test cases in `TestSolnSquareVerifier.js` |
+
+- Variables in `square.code` are replaced
+- `SolnSquareVerifier.sol` is complete
+- `TestSolnSquareVerifier.js` is implemented and passes the test cases
+
+
+
+## OpenSea Marketplace
+
+
+
+| CRITERIA     | MEETS SPECIFICATIONS                                         |
+| :----------- | :----------------------------------------------------------- |
+| Market Place | Student list ERC721/ ZoKrates tokens & complete transactions on market place |
+
+- Market Place is is completed in OpenSea in the address: 
+
+
+
+## Deployment
+
+
+
+| CRITERIA   | MEETS SPECIFICATIONS                                        |
+| :--------- | :---------------------------------------------------------- |
+| Deployment | Student deploys ERC721 contracts with Zokrates integration. |
+
+- ERC721 contracts with Zokrates integration are deployed on Rinkeby
 
 
 
 
-https://rinkeby.etherscan.io/address/0xEd7c77c20bEf51817e48D187777DFfeA042786A3
+
+## notes 
+
+<https://rinkeby.etherscan.io/address/0xEd7c77c20bEf51817e48D187777DFfeA042786A3>
+
+<https://rinkeby.opensea.io/get-listed/step-two>
 
 
 
 
 
+## References
 
-
-
-
-https://rinkeby.opensea.io/get-listed/step-two
-
-
-
-
-
-
-
-
-
-
-
-# Project Resources
-
-* [Remix - Solidity IDE](https://remix.ethereum.org/)
-* [Visual Studio Code](https://code.visualstudio.com/)
-* [Truffle Framework](https://truffleframework.com/)
-* [Ganache - One Click Blockchain](https://truffleframework.com/ganache)
-* [Open Zeppelin ](https://openzeppelin.org/)
-* [Interactive zero knowledge 3-colorability demonstration](http://web.mit.edu/~ezyang/Public/graph/svg.html)
-* [Docker](https://docs.docker.com/install/)
-* [ZoKrates](https://github.com/Zokrates/ZoKrates)
-
-
-
-
-
-
-
-```
-
-```
-
+- Student hub
