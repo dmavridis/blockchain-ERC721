@@ -62,24 +62,26 @@ produces the following output:
 ```
  Contract: TestERC721Mintable
     match erc721 spec
-      ✓ should return total supply
-      ✓ should get token balance
-      ✓ should return token uri
-      ✓ should transfer token from one owner to another (57ms)
-    have ownership properties
-      ✓ should fail when minting when address is not contract owner
-      ✓ should return contract owner
+      √ should return total supply (57ms)
+      √ should get token balance (69ms)
+      √ should return token uri (82ms)
+      √ should transfer token from one owner to another (317ms)
+another (317ms)
+    have ownership properties                    not contract owner (99ms)
+      √ should fail when minting when address is not contract owner (99ms)
+      √ should return contract owner (44ms)
 
   Contract: TestSolnSquareVerifier
-    Mint with square verifier
-      ✓ Minting (2519ms)
+    Mint with square verifier                   ng (228ms)
+      √ Verifying minting (3608ms)
+      √ Should fail when minting without verifying (228ms)
 
   Contract: TestSquareVerifier
     Verify Tx
-      ✓ Correct verification (1698ms)
+      √ Correct verification (3312ms)
 
 
-  8 passing (8s)
+  9 passing (23s)    
 ```
 
 ### Deployment to Rinkeby
