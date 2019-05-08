@@ -14,7 +14,10 @@ var Verifier = artifacts.require('Verifier');
 contract('TestSolnSquareVerifier', accounts => {
     const account_one = accounts[0];
     const account_two = accounts[1];
+    const account_three = accounts[2];
+
     const { proof, input } = require('../../zokrates/code/square/proof.json')
+    const { proof_err, input_err } = require('../../zokrates/code/square/proof-err.json')
 
 
     describe('Mint with square verifier', function () {
@@ -23,7 +26,7 @@ contract('TestSolnSquareVerifier', accounts => {
             this.contract = await SolnSquareVerifier.new(this.verifier.address, {from: account_one});
         })
 
-        it('Minting', async function () { 
+        it('Verifying minting', async function () { 
             await this.contract.mintNFT
                                 (
                                     account_two,
@@ -42,5 +45,34 @@ contract('TestSolnSquareVerifier', accounts => {
             assert.equal(balance, 1, 'Incorrect Balance')
         })
 
+
+        it('Should fail when minting without verifying', async function () {
+            await expectThrow(this.contract.mintNFT
+                                (
+                                    account_three,
+                                    302,
+                                    proof_err.A,
+                                    proof_err.A_p,
+                                    proof_err.B,
+                                    proof_err.B_p,
+                                    proof_err.C,
+                                    proof_err.C_p,
+                                    proof_err.H,
+                                    proof_err.K,
+                                    input_err
+                               )
+            )
+        })
     })
 })
+
+var expectThrow = async function(promise) { 
+    try { 
+        await promise
+    } catch (error) { 
+        assert.exists(error)
+        return
+    }
+
+    assert.fail('Expected an error but didnt see one!')
+}
