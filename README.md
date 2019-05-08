@@ -60,28 +60,28 @@ truffle test
 produces the following output:
 
 ```
- Contract: TestERC721Mintable
+Contract: TestERC721Mintable
     match erc721 spec
-      √ should return total supply (57ms)
-      √ should get token balance (69ms)
-      √ should return token uri (82ms)
-      √ should transfer token from one owner to another (317ms)
-another (317ms)
-    have ownership properties                    not contract owner (99ms)
-      √ should fail when minting when address is not contract owner (99ms)
-      √ should return contract owner (44ms)
+      √ should return total supply (73ms)
+      √ should get token balance (61ms)
+      √ should return token uri (125ms)
+      √ should transfer token from one owner to another (283ms)
+    have ownership properties
+      √ should fail when minting when address is not contract owner (101ms)
+      √ should return contract owner (48ms)
 
   Contract: TestSolnSquareVerifier
-    Mint with square verifier                   ng (228ms)
-      √ Verifying minting (3608ms)
-      √ Should fail when minting without verifying (228ms)
+    Mint with square verifier
+      √ Verifying minting (4729ms)
+      √ Should fail when minting without verifying (283ms)
 
   Contract: TestSquareVerifier
     Verify Tx
-      √ Correct verification (3312ms)
+      √ Correct verification (3058ms)
+      √ Verifier captures wrong input (108ms)
 
 
-  9 passing (23s)    
+  10 passing (25s)
 ```
 
 ### Deployment to Rinkeby
