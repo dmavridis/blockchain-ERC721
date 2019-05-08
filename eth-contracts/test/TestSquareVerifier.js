@@ -7,7 +7,6 @@ contract('TestSquareVerifier', accounts => {
     describe('Verify Tx', function () {
         beforeEach(async function () { 
             this.contract = await Verifier.new({from: accounts[0] });
-
         })
 
         it('Correct verification', async function () { 
@@ -27,5 +26,32 @@ contract('TestSquareVerifier', accounts => {
             assert.equal(verified, true, "Not verified correctly");
         })
 
+        it('Verifier captures wrong input', async function () { 
+            let { proof_err, input_err } = require('../../zokrates/code/square/proof-err.json')
+            await expectThrow(this.contract.verifyTx.call
+                                (
+                                    proof_err.A,
+                                    proof_err.A_p,
+                                    proof_err.B,
+                                    proof_err.B_p,
+                                    proof_err.C,
+                                    proof_err.C_p,
+                                    proof_err.H,
+                                    proof_err.K,
+                                    input_err
+                                )
+            )
+        })
     })
 })
+
+var expectThrow = async function(promise) { 
+    try { 
+        await promise
+    } catch (error) { 
+        assert.exists(error)
+        return
+    }
+
+    assert.fail('Expected an error but didnt see one!')
+}
